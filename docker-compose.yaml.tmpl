@@ -1,0 +1,110 @@
+# File version {{version}}
+version: "3.8"
+services:
+    influx:
+        container_name: influx-monitor
+        image: influxdb:2.5.1
+        networks:
+            - influx-db
+        ports:
+            - "{{influx-port}}:8086"
+        environment:
+            - INFLUXDB_HTTP_AUTH_ENABLED=TRUE
+            - DOCKER_INFLUXDB_INIT_MODE=setup
+            - DOCKER_INFLUXDB_INIT_USERNAME={{influx-admin-user}}
+            - DOCKER_INFLUXDB_INIT_PASSWORD={{influx-admin-pw}}
+            - DOCKER_INFLUXDB_INIT_ORG={{influx-org}}
+            - DOCKER_INFLUXDB_INIT_BUCKET={{influx-db}}
+            - DOCKER_INFLUXDB_INIT_RETENTION=30d
+            - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN={{influx-token}}
+        volumes:
+            - influx-storage:/var/lib/influxdb
+            - ./influx-data//init-influxdb.sh:/init-influxdb.sh
+        restart: unless-stopped
+            
+    node-red:
+        depends_on:
+            - influx
+        container_name: nodered-monitor
+        build: .
+        image: nodered/node-red:latest
+        networks:
+            - influx-db
+            - mysql-db
+        environment:
+            - TZ=Europe/Amsterdam
+            - FLOWS=flows.json
+        ports:
+            - "{{nodered-port}}:1880"
+        volumes:
+            - ./nodered-data:/data
+        restart: unless-stopped
+                      
+    grafana:
+        depends_on:
+            - influx
+        container_name: grafana-monitor
+        image: grafana/grafana:latest
+        networks:
+            - influx-db
+            - mysql-db
+        environment:
+            - GF_DEFAULT_INSTANCE_NAME={{grafana-org}}
+            - GF_SECURITY_ADMIN_USER={{grafana-admin-user}}
+            - GF_SECURITY_ADMIN_PASSWORD={{grafana-admin-pw}}
+            - GF_PATHS_PROVISIONING=/var/grafana-docker/provisioning
+            - GF_SMTP_ENABLED=false
+        volumes:
+            - grafana-storage:/var/lib/grafana
+            - ./grafana-data/provisioning:/var/grafana-docker/provisioning
+        ports:
+            - "{{grafana-port}}:3000"
+        restart: unless-stopped
+    
+    mysql:
+        container_name: mysql-database
+        image: mysql/mysql-server:8.0.20
+        networks:
+            - mysql-db
+        ports:
+            - "{{mysql-port}}:3306"
+        environment:
+          MYSQL_ROOT_PASSWORD: "{{mysql-root-pw}}"
+          MYSQL_ROOT_HOST: "{{mysql-host}}"
+        volumes:
+            - ./mysql-data/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+            - ./mysql-data/config/:/etc/mysqld.cnf
+            - mysql-storage:/var/lib/mysql
+        restart: unless-stopped
+          
+    phpmyadmin:
+      container_name: phpmyadmin-mysql
+      image: phpmyadmin/phpmyadmin
+      networks:
+           - mysql-db
+      links:
+           - mysql  
+      environment:
+        MYSQL_USERNAME: "{{mysql-username}}"
+        MYSQL_PASSWORD: "{{mysql-root-pw}}"
+        MYSQL_ROOT_HOST: 127.0.0.1
+        PMA_HOST: db
+        PMA_PORT: {{mysql-port}}
+        PMA_ARBITRARY: 1
+      ports:
+           - {{php-port}}:80
+      stdin_open: true
+      restart: unless-stopped
+
+volumes:
+    grafana-storage:
+    influx-storage:
+        driver: local
+    mysql-storage:
+        driver: local
+
+networks:
+    mysql-db:
+        name: mysql-connection
+    influx-db:
+        name: influx-connection

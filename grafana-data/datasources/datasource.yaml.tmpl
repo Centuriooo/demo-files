@@ -1,0 +1,49 @@
+# # config file version
+apiVersion: 1
+
+# list of datasources that should be deleted from the database
+deleteDatasources:
+  - name: influxsrc
+    orgId: 1
+
+# list of datasources to insert/update depending
+# what's available in the database
+datasources:
+  # <string, required> name of the datasource. Required
+  - name: InfluxDB_Flux
+    # <string, required> datasource type. Required
+    type: influxdb
+    # <string, required> access mode. proxy or direct (Server or Browser in the UI). Required
+    access: proxy
+    # <string> url
+    url: http://influx:{{influx-port}}
+    # <bool> enable/disable basic auth
+    basicAuth: false
+    # <bool> mark as default datasource. Max one per org
+    isDefault: true
+    # <map> fields that will be converted to json and stored in jsonData
+    jsonData:
+      version: Flux
+      organization: {{influx-org}}
+      defaultBucket: {{influx-db}}
+      tlsSkipVerify: true
+      timeInterval: "1s"
+    # <string> json object of data that will be encrypted.
+    secureJsonData:
+      token: {{influx-token}}
+    version: 1
+    # <bool> allow users to edit datasources from the UI.
+    editable: false
+    
+    
+  - name: MySQL
+    type: mysql
+    url: mysql-database:{{mysql-port}}
+    database: {{mysql-db}}
+    user: {{mysql-user}}
+    jsonData:
+      maxOpenConns: 0 # Grafana v5.4+
+      maxIdleConns: 2 # Grafana v5.4+
+      connMaxLifetime: 14400 # Grafana v5.4+
+    secureJsonData:
+      password: {{mysql-pw}}

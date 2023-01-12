@@ -1,0 +1,694 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "655d94489ebd8ea0",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "1 second",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 200,
+        "wires": [
+            [
+                "86c887d2a4de5c0d",
+                "df745e22ae845836",
+                "aead64d1ad72a146"
+            ]
+        ]
+    },
+    {
+        "id": "60498abbd1f4dbbd",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "1 minute ",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 480,
+        "wires": [
+            [
+                "435534652fa1c492"
+            ]
+        ]
+    },
+    {
+        "id": "2cfee34406143e17",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create influx query cpu usage",
+        "func": "const obj = msg;\n\n\nif (obj.topic == \"temperature\") {\n    msg.payload = [\n        {\n            measurement: \"cpu_temp\",\n            fields: {\n                usage: obj.payload\n            },\n            tags: {\n                type: obj.topic\n            }\n        }\n    ];\n}\nelse {\n    msg.payload = [\n        {\n            measurement: \"cpu_usage\",\n            fields: {\n                usage: obj.payload\n            },\n            tags: {\n                type: obj.topic\n            }\n        }\n    ];\n}\n\n\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 80,
+        "wires": [
+            [
+                "b5e6afa06cea0963"
+            ]
+        ]
+    },
+    {
+        "id": "1eae518906bf80c7",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "Ram usage",
+        "info": "",
+        "x": 350,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "a21ccc41436f0a67",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "CPU usage",
+        "info": "",
+        "x": 350,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "5f6f2cdd1ee7cfc1",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "Disk storage",
+        "info": "",
+        "x": 350,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "86c887d2a4de5c0d",
+        "type": "cpu",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "msgCore": true,
+        "msgOverall": true,
+        "msgArray": false,
+        "msgTemp": true,
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "2cfee34406143e17",
+                "40c0ab4ba26fd50d"
+            ]
+        ]
+    },
+    {
+        "id": "0ea3482278f06eff",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "Network",
+        "info": "",
+        "x": 340,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "dbf7508bd801bc07",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "120",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 820,
+        "wires": [
+            [
+                "5fd75b5ee2425f04",
+                "3ecc9e7193d6c01e",
+                "cc9ff37b8f79e209"
+            ]
+        ]
+    },
+    {
+        "id": "dea05d28ea8a4ef6",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "Uptime",
+        "info": "",
+        "x": 330,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "b5e6afa06cea0963",
+        "type": "influxdb batch",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "cd5463d1.62eb78",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "cpu_usage",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "qbee-org",
+        "bucket": "firstdb",
+        "x": 890,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "df745e22ae845836",
+        "type": "exec",
+        "z": "f6f2187d.f17ca8",
+        "command": "free | grep Mem ",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "",
+        "timer": "",
+        "winHide": false,
+        "name": "ram usage",
+        "x": 350,
+        "y": 300,
+        "wires": [
+            [
+                "f23a1b8fc91441ba",
+                "7c27d7dfd7c3f89f"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "f23a1b8fc91441ba",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create influx query ram usage",
+        "func": "const obj = msg; \n\nconst sentence = obj.payload.replace(/\\s+/g, ' ').trim();\nconst arr = sentence.split(\" \"); //0:mem: 1:total 2:used 3:free 4:shared 5:buff/cache 6:availabe\n\nmsg.payload = [\n    {\n        measurement: \"ram_usage\",\n        fields: {\n            size: +arr[1],\n            used: +arr[2],\n            free: +arr[3],\n            available: +arr[6],\n            usage: ((arr[1] - arr[6]) * 100) / arr[1] //awk '{printf \"%.2f\", ($2-$7)*100/$2}'\n        },\n    }\n];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 300,
+        "wires": [
+            [
+                "aa547519e35fb08a"
+            ]
+        ]
+    },
+    {
+        "id": "aa547519e35fb08a",
+        "type": "influxdb batch",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "cd5463d1.62eb78",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "ram_usage",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "qbee-org",
+        "bucket": "firstdb",
+        "x": 910,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "435534652fa1c492",
+        "type": "exec",
+        "z": "f6f2187d.f17ca8",
+        "command": "df / | grep overlay",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "",
+        "timer": "",
+        "winHide": false,
+        "name": "disk usage",
+        "x": 350,
+        "y": 480,
+        "wires": [
+            [
+                "1432b79a272cfda1",
+                "fe52b59157c0ef08"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "1432b79a272cfda1",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create influx query disk usage",
+        "func": "const obj = msg; \n\nconst sentence = obj.payload.replace(/\\s+/g, ' ').trim();\nconst arr = sentence.split(\" \"); //0:Filesystem 1:1k-blocks/size 2:used 3:available 4:use(%) 5:Mounted\n\nmsg.payload = [\n    {\n        measurement: \"disk_usage\",\n        fields: {\n            size: +arr[1],\n            used: +arr[2],\n            available: +arr[3],\n            usage: +arr[4].replace('%', '')\n        },\n    }\n];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 480,
+        "wires": [
+            [
+                "e008d53faa76a672"
+            ]
+        ]
+    },
+    {
+        "id": "e008d53faa76a672",
+        "type": "influxdb batch",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "cd5463d1.62eb78",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "disk_usage",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "qbee-org",
+        "bucket": "firstdb",
+        "x": 910,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "aead64d1ad72a146",
+        "type": "network_stats",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "receivedBytesSec": true,
+        "transmittedBytesSec": true,
+        "x": 360,
+        "y": 640,
+        "wires": [
+            [
+                "2a0a264fccab8155",
+                "dcd56c753f319fdb"
+            ]
+        ]
+    },
+    {
+        "id": "2a0a264fccab8155",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "create influx query network status",
+        "func": "const obj = msg;\n\nmsg.payload = [\n    {\n        measurement: \"network_status\",\n        fields: {\n            usage: obj.payload\n        },\n        tags: {\n            type: obj.topic.replace('_sec', '')\n        }\n    },\n];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 640,
+        "wires": [
+            [
+                "9c2df714bc7c377c"
+            ]
+        ]
+    },
+    {
+        "id": "9c2df714bc7c377c",
+        "type": "influxdb batch",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "cd5463d1.62eb78",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "network_status",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "qbee-org",
+        "bucket": "firstdb",
+        "x": 920,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "5fd75b5ee2425f04",
+        "type": "exec",
+        "z": "f6f2187d.f17ca8",
+        "command": "uptime -s ",
+        "addpay": "",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Last reboot",
+        "x": 350,
+        "y": 820,
+        "wires": [
+            [
+                "3c4f58ae192fb950"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "3c4f58ae192fb950",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create influx query ",
+        "func": "const obj = msg; \n\nmsg.payload = [\n    {\n        measurement: \"reboot_time\",\n        fields: {\n            date: new Date(obj.payload).toLocaleString(\"nl-NL\"),\n        }\n    },\n];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 820,
+        "wires": [
+            [
+                "e1afcc18ec747e66"
+            ]
+        ]
+    },
+    {
+        "id": "e1afcc18ec747e66",
+        "type": "influxdb batch",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "cd5463d1.62eb78",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "reboot_time",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "qbee-org",
+        "bucket": "firstdb",
+        "x": 910,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "40c0ab4ba26fd50d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query cpu usage",
+        "func": "const obj = msg;\n\nif (obj.topic == \"overall\") {\n    msg.payload = [1, obj.payload];\n    msg.topic = \"INSERT INTO CPU_usage (`system_id`, `cpu-usage`) VALUES (?, ?);\";\n    return msg;\n}\nelse if (obj.payload != null && obj.topic == \"temperature\") {\n    msg.payload = [1, obj.payload];\n    msg.topic = \"INSERT INTO CPU_temp (`system_id`, `temperature`) VALUES (?, ?);\";\n    return msg;\n}\nelse {\n    return;\n}\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 140,
+        "wires": [
+            [
+                "2eb3b48e645b8065"
+            ]
+        ]
+    },
+    {
+        "id": "2eb3b48e645b8065",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 880,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7c27d7dfd7c3f89f",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query ram usage",
+        "func": "const obj = msg;\n\nconst sentence = obj.payload.replace(/\\s+/g, ' ').trim();\nconst arr = sentence.split(\" \"); //0:mem: 1:total 2:used 3:free 4:shared 5:buff/cache 6:availabe\n\n\n\nmsg.payload = [1, ((arr[1] - arr[6]) * 100) / arr[1], +arr[6]];\nmsg.topic = \"INSERT INTO RAM_usage (`system_id`, `ram-usage`, `available`) VALUES (?, ?, ?);\";\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 360,
+        "wires": [
+            [
+                "4cc242c42c033bd6"
+            ]
+        ]
+    },
+    {
+        "id": "4cc242c42c033bd6",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 900,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fe52b59157c0ef08",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query disk usage",
+        "func": "const obj = msg;\n\nconst sentence = obj.payload.replace(/\\s+/g, ' ').trim();\nconst arr = sentence.split(\" \"); //0:mem: 1:total 2:used 3:free 4:shared 5:buff/cache 6:availabe\n\n\n\nmsg.payload = [1, +arr[4].replace('%', ''), +arr[3], +arr[2]];\nmsg.topic = \"INSERT INTO DISK_usage (`system_id`, `disk-usage`, `available`, `used`) VALUES (?, ?, ?, ?);\";\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 540,
+        "wires": [
+            [
+                "8c8eb4f82d38330a"
+            ]
+        ]
+    },
+    {
+        "id": "8c8eb4f82d38330a",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 900,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dcd56c753f319fdb",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query network usage",
+        "func": "const obj = msg;\n\nmsg.payload = [1, obj.topic.replace('_bytes_sec', ''), obj.payload];\nmsg.topic = \"INSERT INTO NETWORK_usage (`system_id`, `type`, `network-usage`) VALUES (?, ?, ?);\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 700,
+        "wires": [
+            [
+                "bd8ac47e99b455cb"
+            ]
+        ]
+    },
+    {
+        "id": "bd8ac47e99b455cb",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 900,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ecc9e7193d6c01e",
+        "type": "exec",
+        "z": "f6f2187d.f17ca8",
+        "command": "free | grep Mem | awk '{print $2}' ",
+        "addpay": "",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "RAM size",
+        "x": 340,
+        "y": 940,
+        "wires": [
+            [
+                "0eb2581c5611451a"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "0eb2581c5611451a",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query update System table ram",
+        "func": "const obj = msg;\n\nmsg.payload = [obj.payload];\nmsg.topic = \"UPDATE `System` SET ram_size=(?) WHERE system_id=1;\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 940,
+        "wires": [
+            [
+                "1017cc1cd0aa016e"
+            ]
+        ]
+    },
+    {
+        "id": "1017cc1cd0aa016e",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 980,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c2645ae21376c06e",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "Update system info in MySQL",
+        "info": "",
+        "x": 400,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "cc9ff37b8f79e209",
+        "type": "exec",
+        "z": "f6f2187d.f17ca8",
+        "command": "df / | grep overlay | awk ' {print $2}' ",
+        "addpay": "",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Disk size",
+        "x": 340,
+        "y": 1020,
+        "wires": [
+            [
+                "d29d567a7d45f5e2"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d29d567a7d45f5e2",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "Create MySQL query update System table disk",
+        "func": "const obj = msg;\n\nmsg.payload = [obj.payload];\nmsg.topic = \"UPDATE `System` SET disk_size=(?) WHERE system_id=1;\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 1020,
+        "wires": [
+            [
+                "5be2da3692c8a9ae"
+            ]
+        ]
+    },
+    {
+        "id": "5be2da3692c8a9ae",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "2d690b8f746cbda9",
+        "name": "",
+        "x": 1000,
+        "y": 1020,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cd5463d1.62eb78",
+        "type": "influxdb",
+        "hostname": "influx",
+        "port": "8086",
+        "protocol": "http",
+        "database": "firstdb",
+        "name": "influx docker",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influx:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "2d690b8f746cbda9",
+        "type": "MySQLdatabase",
+        "name": "Monitor",
+        "host": "mysql-database",
+        "port": "3306",
+        "db": "system_monitor",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
