@@ -1,0 +1,162 @@
+name: Automated Node-RED flow file distribution
+
+on:
+ push:
+    branches: [ main ]
+ pull_request:
+    branches: [ main ]
+
+jobs:
+ build:
+  runs-on: ubuntu-latest
+  env:
+    #Docker files
+        DOCKERFILE: Dockerfile
+        DOCKERCOMPOSE: docker-compose.yaml.tmpl
+    #Grafana data
+        GRAFANADASHBOARD: dashboards.yaml
+        GRAFANAMONITORINFLUX: system-monitor.json
+        GRAFANAMONITORMYSQL: system-monitor-mysql.json
+        GRAFANADATASOURCE: datasource.yaml.tmpl
+        GRAFANAALERTS: alerting.yaml.tmpl
+    #Influx database
+        INFLUX: init-influxdb.sh
+    #Node-RED data
+        NODESETTINGS: settings.js.tmpl
+        NODEFLOWSCRED: flows_cred.json.tmpl
+        NODEFLOWS: flows.json
+    #MySQL database
+        MYSQLINIT: init.sql
+        MYSQLCONFIG: mysqld.cnf
+        
+  steps:
+    - uses: actions/checkout@v2
+    
+ # login to Qbee platform  
+    - name: qbee.io authentication
+      uses: qbee-io/authenticate-action@v1
+      id: qbee-auth
+      with:
+        login: ${{ secrets.USERNAME_KEY }}
+        password: ${{ secrets.PASSWORD_KEY }}
+
+ # upload files: docker 
+    - name: qbee.io Docker file upload     
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.DOCKERFILE }}
+        qbee_directory: '/monitor-demo/nodered-image/'
+        local_directory: 'nodered-image/'
+        
+    - name: qbee.io Docker compose file upload
+      if: always() 
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.DOCKERCOMPOSE }}
+        qbee_directory: '/monitor-demo/'
+        local_directory: '.'
+
+ # upload files: Grafana
+    - name: qbee.io grafana-GRAFANADASHBOARD upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GRAFANADASHBOARD }}
+        qbee_directory: '/monitor-demo/grafana-data/dashboards/'
+        local_directory: 'grafana-data/dashboards/'
+        
+    - name: qbee.io grafana-GRAFANAMONITORINFLUX upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GRAFANAMONITORINFLUX }} 
+        qbee_directory: '/monitor-demo/grafana-data/dashboards/system-monitor/'
+        local_directory: 'grafana-data/dashboards/system-monitor/'
+        
+    - name: qbee.io grafana-GRAFANAMONITORMYSQL upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GRAFANAMONITORMYSQL }} 
+        qbee_directory: '/monitor-demo/grafana-data/dashboards/system-monitor/'
+        local_directory: 'grafana-data/dashboards/system-monitor/'
+    
+    - name: qbee.io grafana-GRAFANADATASOURCE upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GRAFANADATASOURCE }} 
+        qbee_directory: '/monitor-demo/grafana-data/datasources/'
+        local_directory: 'grafana-data/datasources/'
+        
+    - name: qbee.io grafana-GRAFANAALERTS upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GRAFANAALERTS }} 
+        qbee_directory: '/monitor-demo/grafana-data/alerting/'
+        local_directory: 'grafana-data/alerting/'
+        
+ # upload files: Influx database
+    - name: qbee.io Influx-INFLUXdb upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.INFLUX }} 
+        qbee_directory: '/monitor-demo/influx-data/'
+        local_directory: 'influx-data/'     
+        
+  # upload files: Node-Red data
+    - name: qbee.io Node-Red-NODESETTINGS upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.NODESETTINGS }} 
+        qbee_directory: '/monitor-demo/nodered-data/'
+        local_directory: 'nodered-data/'        
+        
+    - name: qbee.io Node-Red-NODEFLOWSCRED upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.NODEFLOWSCRED }} 
+        qbee_directory: '/monitor-demo/nodered-data/'
+        local_directory: 'nodered-data/'       
+     
+    - name: qbee.io Node-Red-NODEFLOWS upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.NODEFLOWS }} 
+        qbee_directory: '/monitor-demo/nodered-data/'
+        local_directory: 'nodered-data/'    
+
+  # upload files: MySQL database   
+    - name: qbee.io MySQL-MYSQLINIT upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.MYSQLINIT }} 
+        qbee_directory: '/monitor-demo/mysql-data/docker-entrypoint-initdb.d/'
+        local_directory: 'mysql-data/docker-entrypoint-initdb.d/'  
+        
+    - name: qbee.io MySQL-MYSQLCONFIG upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.MYSQLCONFIG }} 
+        qbee_directory: '/monitor-demo/mysql-data/config/'
+        local_directory: 'mysql-data/config/'        
