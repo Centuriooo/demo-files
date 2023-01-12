@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    command: 
+      - '--admin-password-file=/run/secrets/portainer_admin_password'
+      - '--no-analytics'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9000:9000
+    secrets:
+      - portainer_admin_password
+      
+secrets:
+  portainer_admin_password:
+    file: ./secrets/portainer_admin_password
