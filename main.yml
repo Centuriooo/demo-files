@@ -28,6 +28,12 @@ jobs:
     #MySQL database
         MYSQLINIT: init.sql
         MYSQLCONFIG: mysqld.cnf
+    #Install scripts
+        GETDOCKER: get-docker.sh
+        DOCKERPACKAGE: containerd.io_1.6.9-1_amd64.deb
+        UNINSTALL: uninstall-qbee.sh
+        PORTAINERPW: portainer_admin_password.tmpl
+        DOCKERCOMPOSEPORTAINER: docker-compose.yaml
         
   steps:
     - uses: actions/checkout@v2
@@ -65,8 +71,8 @@ jobs:
       with:
         token: ${{ steps.qbee-auth.outputs.token }}
         filename: ${{ env.GRAFANADASHBOARD }}
-        qbee_directory: '/monitor-demo/grafana-data/dashboards/'
-        local_directory: 'grafana-data/dashboards/'
+        qbee_directory: '/monitor-demo/grafana-data/provisioning/dashboards/'
+        local_directory: 'grafana-data/provisioning/dashboards/'
         
     - name: qbee.io grafana-GRAFANAMONITORINFLUX upload
       if: always()
@@ -74,8 +80,8 @@ jobs:
       with:
         token: ${{ steps.qbee-auth.outputs.token }}
         filename: ${{ env.GRAFANAMONITORINFLUX }} 
-        qbee_directory: '/monitor-demo/grafana-data/dashboards/system-monitor/'
-        local_directory: 'grafana-data/dashboards/system-monitor/'
+        qbee_directory: '/monitor-demo/grafana-data/provisioning/dashboards/system-monitor/'
+        local_directory: 'grafana-data/provisioning/dashboards/system-monitor/'
         
     - name: qbee.io grafana-GRAFANAMONITORMYSQL upload
       if: always()
@@ -83,8 +89,8 @@ jobs:
       with:
         token: ${{ steps.qbee-auth.outputs.token }}
         filename: ${{ env.GRAFANAMONITORMYSQL }} 
-        qbee_directory: '/monitor-demo/grafana-data/dashboards/system-monitor/'
-        local_directory: 'grafana-data/dashboards/system-monitor/'
+        qbee_directory: '/monitor-demo/grafana-data/provisioning/dashboards/system-monitor/'
+        local_directory: 'grafana-data/provisioning/dashboards/system-monitor/'
     
     - name: qbee.io grafana-GRAFANADATASOURCE upload
       if: always()
@@ -92,8 +98,8 @@ jobs:
       with:
         token: ${{ steps.qbee-auth.outputs.token }}
         filename: ${{ env.GRAFANADATASOURCE }} 
-        qbee_directory: '/monitor-demo/grafana-data/datasources/'
-        local_directory: 'grafana-data/datasources/'
+        qbee_directory: '/monitor-demo/grafana-data/provisioning/datasources/'
+        local_directory: 'grafana-data/provisioning/datasources/'
         
     - name: qbee.io grafana-GRAFANAALERTS upload
       if: always()
@@ -101,8 +107,8 @@ jobs:
       with:
         token: ${{ steps.qbee-auth.outputs.token }}
         filename: ${{ env.GRAFANAALERTS }} 
-        qbee_directory: '/monitor-demo/grafana-data/alerting/'
-        local_directory: 'grafana-data/alerting/'
+        qbee_directory: '/monitor-demo/grafana-data/provisioning/alerting/'
+        local_directory: 'grafana-data/provisioning/alerting/'
         
  # upload files: Influx database
     - name: qbee.io Influx-INFLUXdb upload
@@ -160,3 +166,50 @@ jobs:
         filename: ${{ env.MYSQLCONFIG }} 
         qbee_directory: '/monitor-demo/mysql-data/config/'
         local_directory: 'mysql-data/config/'        
+        
+        
+   # upload files: install-scripts 
+    - name: qbee.io GETDOCKER upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.GETDOCKER }} 
+        qbee_directory: ''
+        local_directory: 'install-scripts/'  
+        
+    - name: qbee.io DOCKERPACKAGE upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.DOCKERPACKAGE }} 
+        qbee_directory: ''
+        local_directory: 'install-scripts/'  
+        
+    - name: qbee.io DOCKERCOMPOSEPORTAINER upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.DOCKERCOMPOSEPORTAINER }} 
+        qbee_directory: ''
+        local_directory: 'install-scripts/'  
+        
+    - name: qbee.io UNINSTALL upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.UNINSTALL }} 
+        qbee_directory: ''
+        local_directory: 'install-scripts/'  
+        
+    - name: qbee.io PORTAINERPW upload
+      if: always()
+      uses: qbee-io/file-upload-action@v1
+      with:
+        token: ${{ steps.qbee-auth.outputs.token }}
+        filename: ${{ env.PORTAINERPW }} 
+        qbee_directory: ''
+        local_directory: 'install-scripts/'          
